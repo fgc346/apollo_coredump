@@ -38,8 +38,11 @@ std::vector<ClassLoader*> ClassLoaderManager::GetAllValidClassLoaders() {
 
 std::vector<std::string> ClassLoaderManager::GetAllValidLibPath() {
   std::vector<std::string> libpath;
+  AINFO << "[fgc,add] libpath_loader_map_.size = "
+        << libpath_loader_map_.size();
   for (auto& lib_class_loader : libpath_loader_map_) {
     if (lib_class_loader.second != nullptr) {
+      AINFO << "[fgc, add] lib_class_loader.first " << lib_class_loader.first;
       libpath.emplace_back(lib_class_loader.first);
     }
   }
@@ -48,6 +51,9 @@ std::vector<std::string> ClassLoaderManager::GetAllValidLibPath() {
 
 bool ClassLoaderManager::IsLibraryValid(const std::string& library_name) {
   std::vector<std::string> valid_libraries = GetAllValidLibPath();
+  for (auto valid_library : valid_libraries) {
+    AINFO << "[fgc,add] valid_library = " << valid_library;
+  }
   return (valid_libraries.end() != std::find(valid_libraries.begin(),
                                              valid_libraries.end(),
                                              library_name));
@@ -56,6 +62,7 @@ bool ClassLoaderManager::IsLibraryValid(const std::string& library_name) {
 bool ClassLoaderManager::LoadLibrary(const std::string& library_path) {
   std::lock_guard<std::mutex> lck(libpath_loader_map_mutex_);
   if (!IsLibraryValid(library_path)) {
+    AINFO << "[fgc, add] the library_path is invalid";
     libpath_loader_map_[library_path] =
         new class_loader::ClassLoader(library_path);
   }

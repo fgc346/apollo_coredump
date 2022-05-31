@@ -43,7 +43,11 @@ LibPathSharedLibVector& GetLibPathSharedLibVector() {
 
 ClassClassFactoryMap& GetClassFactoryMapByBaseClass(
     const std::string& typeid_base_class_name) {
+  AINFO << "[fgc,add] the typeid_base_class_name = " << typeid_base_class_name;
   BaseToClassFactoryMapMap& factoryMapMap = GetClassFactoryMapMap();
+  for (auto& factory_map : factoryMapMap) {
+    AINFO << "[fgc,add] factory_map.first = " << factory_map.first;
+  }
   std::string base_class_name = typeid_base_class_name;
   if (factoryMapMap.find(base_class_name) == factoryMapMap.end()) {
     factoryMapMap[base_class_name] = ClassClassFactoryMap();
@@ -203,6 +207,8 @@ bool LoadLibrary(const std::string& library_path, ClassLoader* loader) {
     return true;
   }
 
+  AINFO << "[fgc,add] LoadLibrary begin";
+
   SharedLibraryPtr shared_library = nullptr;
   static std::recursive_mutex loader_mutex;
   {
@@ -234,6 +240,8 @@ bool LoadLibrary(const std::string& library_path, ClassLoader* loader) {
     AERROR << "shared library failed: " << library_path;
     return false;
   }
+
+  AINFO << "[fgc,add] shared library is success";
 
   auto num_lib_objs = GetAllClassFactoryObjectsOfLibrary(library_path).size();
   if (num_lib_objs == 0) {

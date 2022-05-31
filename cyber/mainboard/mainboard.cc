@@ -31,6 +31,7 @@ int main(int argc, char** argv) {
 
   // initialize cyber
   apollo::cyber::Init(argv[0]);
+  AINFO << "[fgc add]execute the mainboard main";
 
   // start module
   ModuleController controller(module_args);

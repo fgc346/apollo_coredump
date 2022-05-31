@@ -68,6 +68,12 @@ std::vector<std::string> ClassLoader::GetValidClassNames() {
 template <typename Base>
 bool ClassLoader::IsClassValid(const std::string& class_name) {
   std::vector<std::string> valid_classes = GetValidClassNames<Base>();
+
+  AINFO << "[fgc, add]valid_classes size = " << valid_classes.size();
+  for (auto& valid_class : valid_classes) {
+    AINFO << "[fgc, add], the valid_class = " << valid_class;
+  }
+
   return (std::find(valid_classes.begin(), valid_classes.end(), class_name) !=
           valid_classes.end());
 }
@@ -75,9 +81,14 @@ bool ClassLoader::IsClassValid(const std::string& class_name) {
 template <typename Base>
 std::shared_ptr<Base> ClassLoader::CreateClassObj(
     const std::string& class_name) {
+  AINFO << "[fgc,add] the class_name = " << class_name
+        << " create classObj begin";
   if (!IsLibraryLoaded()) {
     LoadLibrary();
   }
+
+  AINFO << "[fgc,add], the library_path_ = " << library_path_
+        << " is load finished";
 
   Base* class_object = utility::CreateClassObj<Base>(class_name, this);
   if (class_object == nullptr) {

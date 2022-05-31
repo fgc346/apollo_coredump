@@ -79,6 +79,13 @@ void RegisterClass(const std::string& class_name,
   AINFO << "registerclass:" << class_name << "," << base_class_name << ","
         << GetCurLoadingLibraryName();
 
+  if (GetCurActiveClassLoader() != nullptr) {
+    AINFO << "[fgc add], GetCurActiveClassLoader(), librarypath = "
+          << GetCurActiveClassLoader()->GetLibraryPath();
+  } else {
+    AWARN << "[fgc add], the current activate class loader is null";
+  }
+
   utility::AbstractClassFactory<Base>* new_class_factory_obj =
       new utility::ClassFactory<Derived, Base>(class_name, base_class_name);
   new_class_factory_obj->AddOwnedClassLoader(GetCurActiveClassLoader());
@@ -88,6 +95,13 @@ void RegisterClass(const std::string& class_name,
   ClassClassFactoryMap& factory_map =
       GetClassFactoryMapByBaseClass(typeid(Base).name());
   factory_map[class_name] = new_class_factory_obj;
+  AINFO << "[fgc,add], the factory_map.size = " << factory_map.size();
+  // fgc temp add
+  for (auto factory : factory_map) {
+    AINFO << " [fgc,add] the class_name = " << factory.first
+          << " base_name = " << factory.second->GetBaseClassName()
+          << " base_class_name = " << factory.second->GetClassName();
+  }
   GetClassFactoryMapMapMutex().unlock();
 }
 
@@ -98,6 +112,7 @@ Base* CreateClassObj(const std::string& class_name, ClassLoader* loader) {
       GetClassFactoryMapByBaseClass(typeid(Base).name());
   AbstractClassFactory<Base>* factory = nullptr;
   if (factoryMap.find(class_name) != factoryMap.end()) {
+    AINFO << "[fgc,add], dynamic create the class_name = " << class_name;
     factory = dynamic_cast<utility::AbstractClassFactory<Base>*>(
         factoryMap[class_name]);
   }
