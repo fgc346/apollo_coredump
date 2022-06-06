@@ -21,7 +21,7 @@ source "${CURR_DIR}/docker_base.sh"
 CACHE_ROOT_DIR="${APOLLO_ROOT_DIR}/.cache"
 
 DOCKER_REPO="apolloauto/apollo"
-DEV_CONTAINER="apollo_dev_${USER}"
+DEV_CONTAINER="apollo_dev_${USER}_learn"
 DEV_INSIDE="in-dev-docker"
 
 SUPPORTED_ARCHS=(x86_64 aarch64)

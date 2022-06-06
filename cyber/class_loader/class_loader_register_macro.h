@@ -19,11 +19,12 @@
 
 #include "cyber/class_loader/utility/class_loader_utility.h"
 
+//匿名namespace的作用 为了使全局静态函数拥有唯一的名称
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL(Derived, Base, UniqueID)     \
   namespace {                                                             \
   struct ProxyType##UniqueID {                                            \
     ProxyType##UniqueID() {                                               \
-      AINFO << "[fgc add], UniqueID = " << #UniqueID;                     \
+      AINFO << "[fgc add], UniqueID = " << UniqueID;                     \
       apollo::cyber::class_loader::utility::RegisterClass<Derived, Base>( \
           #Derived, #Base);                                               \
     }                                                                     \

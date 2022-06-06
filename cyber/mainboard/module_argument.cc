@@ -65,6 +65,7 @@ void ModuleArgument::GetOptions(const int argc, char* const argv[]) {
   opterr = 0;  // extern int opterr
   int long_index = 0;
   //short_opts是一个选项字符串，对应到命令行就是-h, -d, -p, -s；冒号表示参数，一个冒号就是表示这个选项后面必须带有参数，没有带参数会报错
+  // 即-d，-p,-s都必须有参数
   const std::string short_opts = "hd:p:s:";
   static const struct option long_opts[] = {
       {"help", no_argument, nullptr, 'h'},

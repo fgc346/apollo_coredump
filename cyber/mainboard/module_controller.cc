@@ -76,9 +76,12 @@ bool ModuleController::LoadAll() {
 }
 
 bool ModuleController::LoadModule(const DagConfig& dag_config) {
+  AINFO << "[fgc,add] the dag_config = " << dag_config.DebugString();
   const std::string work_root = common::WorkRoot();
+  AINFO << "[fgc,add] work_root = " << work_root;
 
   for (auto module_config : dag_config.module_config()) {
+    AINFO << "[fgc, add], module_config = \n" << module_config.DebugString();
     std::string load_path;
     if (module_config.module_library().front() == '/') {
       load_path = module_config.module_library();
@@ -98,6 +101,7 @@ bool ModuleController::LoadModule(const DagConfig& dag_config) {
         << module_config.components().size();
 
     for (auto& component : module_config.components()) {
+      AINFO << "[fgc,add] component = " << component.DebugString();
       AINFO << "[fgc,add], input the components, class_name = "
             << component.class_name();
       const std::string& class_name = component.class_name();

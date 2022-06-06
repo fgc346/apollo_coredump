@@ -141,20 +141,24 @@ class Component<M0, M1, M2, NullType> : public ComponentBase {
 template <typename M0>
 bool Component<M0, NullType, NullType, NullType>::Process(
     const std::shared_ptr<M0>& msg) {
+//读取原子变量is_shutdown_的值
   if (is_shutdown_.load()) {
     return true;
   }
   return Proc(msg);
 }
 
-inline bool Component<NullType, NullType, NullType>::Initialize(
+inline bool Component<NullType, NullType>::Initialize(
     const ComponentConfig& config) {
+  AINFO << "[fgc,add] config = " << config.DebugString(); 
   node_.reset(new Node(config.name()));
   LoadConfigFiles(config);
+  AINFO << "[fgc,add] Component<>::Initialize begin Init";
   if (!Init()) {
     AERROR << "Component Init() failed." << std::endl;
     return false;
   }
+  AINFO << "[fgc,add] Component<NullType, NullType, NullType> Init finished";
   return true;
 }
 
@@ -168,12 +172,12 @@ bool Component<M0, NullType, NullType, NullType>::Initialize(
     AERROR << "Invalid config file: too few readers.";
     return false;
   }
-
+  AINFO << "[fgc,add] Component<M0, NullType, NullType, NullType>::Initialize begin Init";
   if (!Init()) {
     AERROR << "Component Init() failed.";
     return false;
   }
-
+  AINFO << "[fgc,add] Component<M0, NullType, NullType, NullType> Init finished";
   bool is_reality_mode = GlobalData::Instance()->IsRealityMode();
 
   ReaderConfig reader_cfg;
