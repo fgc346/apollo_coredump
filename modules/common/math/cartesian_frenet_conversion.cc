@@ -49,7 +49,7 @@ void CartesianFrenetConverter::cartesian_to_frenet(
 
   // Δθ = θx-θr
   const double delta_theta = theta - rtheta;
-  const double tan_delta_theta = std::tan(θx);
+  const double tan_delta_theta = std::tan(delta_theta);
   const double cos_delta_theta = std::cos(delta_theta);
 
   //one_minus_kappa_r_d = 1-Kr*l
