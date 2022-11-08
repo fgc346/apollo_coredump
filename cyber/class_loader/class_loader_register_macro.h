@@ -20,6 +20,7 @@
 #include "cyber/class_loader/utility/class_loader_utility.h"
 
 //匿名namespace的作用 为了使全局静态函数拥有唯一的名称
+//宏__COUNTER__实质上是一个int，并且是具体的数，初值是0，每预编译一次其值自己加1
 #define CLASS_LOADER_REGISTER_CLASS_INTERNAL(Derived, Base, UniqueID)     \
   namespace {                                                             \
   struct ProxyType##UniqueID {                                            \

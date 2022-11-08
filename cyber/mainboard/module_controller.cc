@@ -114,6 +114,8 @@ bool ModuleController::LoadModule(const DagConfig& dag_config) {
       AINFO << "[fgc,add], update component_list_ finished\n";
     }
 
+    AINFO << "[fgc,add] after component, the component_list_.size = " << component_list_.size();
+
     for (auto& component : module_config.timer_components()) {
       AINFO << "[fgc,add], input the timer_components, class_name = "
             << component.class_name();
@@ -125,6 +127,7 @@ bool ModuleController::LoadModule(const DagConfig& dag_config) {
       }
       component_list_.emplace_back(std::move(base));
     }
+    AINFO << "[fgc,add] after timer_component, the component_list_.size = " << component_list_.size();
   }
   return true;
 }

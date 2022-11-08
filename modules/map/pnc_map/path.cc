@@ -812,6 +812,7 @@ bool Path::GetProjection(const Vec2d& point, double* accumulate_s,
   const auto prod = nearest_seg.ProductOntoUnit(point);
   const auto proj = nearest_seg.ProjectOntoUnit(point);
   if (min_index == 0) {
+    //如果障碍物在参考线的起始点后面，accumulate_s < 0
     *accumulate_s = std::min(proj, nearest_seg.length());
     if (proj < 0) {
       *lateral = prod;

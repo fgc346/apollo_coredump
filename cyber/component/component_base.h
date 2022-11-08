@@ -38,6 +38,7 @@ namespace cyber {
 using apollo::cyber::proto::ComponentConfig;
 using apollo::cyber::proto::TimerComponentConfig;
 
+//enable_shared_from_this 可以让对象ComponentBase cb1 安全地生成其他额外的std::shared_ptr 实例，它们与cb1共享对象的所有权
 class ComponentBase : public std::enable_shared_from_this<ComponentBase> {
  public:
   template <typename M>
