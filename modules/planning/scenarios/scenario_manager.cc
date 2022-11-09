@@ -894,6 +894,7 @@ bool ScenarioManager::JudgeReachTargetPoint(
     (car_position.x() - target_point.x()) +
     (car_position.y() - target_point.y()) *
     (car_position.y() - target_point.y());
+    //判断自车是否离终点很近，阈值为0.01
   return distance_to_vehicle < FLAGS_threshold_distance_for_destination;
 }
 
@@ -904,6 +905,7 @@ ScenarioConfig::ScenarioType ScenarioManager::ScenarioDispatchNonLearning(
   ScenarioConfig::ScenarioType scenario_type = default_scenario_type_;
   ////////////////////////////////////////
   // Pad Msg scenario
+  //根据驾驶员意图来安排场景
   scenario_type = SelectPadMsgScenario(frame);
 
   const auto vehicle_state_provider = injector_->vehicle_state();

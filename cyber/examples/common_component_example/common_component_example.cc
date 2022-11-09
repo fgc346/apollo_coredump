@@ -14,12 +14,14 @@
  * limitations under the License.
  *****************************************************************************/
 #include "cyber/examples/common_component_example/common_component_example.h"
+#include "cyber/cyber.h"
 
 bool CommonComponentSample::Init() {
   AINFO << "Commontest component init";
 
   //用户可以自定义创建node节点，但是对用户来说，不关心节点，只关心channel名称
   // 关心自己的输入模块，和输出模块，因此没必要自己去创建
+  // auto node2 = apollo::cyber::CreateNode("talker");
   auto node2 = apollo::cyber::CreateNode("talker");
   return true;
 }

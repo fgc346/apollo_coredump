@@ -41,6 +41,7 @@ class OnLanePlanning : public PlanningBase {
  public:
   explicit OnLanePlanning(const std::shared_ptr<DependencyInjector>& injector)
       : PlanningBase(injector) {
+    ADEBUG << "[fgc,add], the OnLanePlanning is called";
     planner_dispatcher_ = std::make_unique<OnLanePlannerDispatcher>();
   }
   virtual ~OnLanePlanning();

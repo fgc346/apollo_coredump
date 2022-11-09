@@ -33,10 +33,13 @@ Status PublicRoadPlanner::Init(const PlanningConfig& config) {
 Status PublicRoadPlanner::Plan(const TrajectoryPoint& planning_start_point,
                                Frame* frame,
                                ADCTrajectory* ptr_computed_trajectory) {
+  // 决策当前应该执行哪个场景
   scenario_manager_.Update(planning_start_point, *frame);
+  //获取当前场景
   scenario_ = scenario_manager_.mutable_scenario();
+  //处理当前场景
   auto result = scenario_->Process(planning_start_point, frame);
-
+  //打印debug信息
   if (FLAGS_enable_record_debug) {
     auto scenario_debug = ptr_computed_trajectory->mutable_debug()
                               ->mutable_planning_data()
@@ -46,11 +49,13 @@ Status PublicRoadPlanner::Plan(const TrajectoryPoint& planning_start_point,
     scenario_debug->set_msg(scenario_->GetMsg());
   }
 
+  //场景处理结束
   if (result == scenario::Scenario::STATUS_DONE) {
     // only updates scenario manager when previous scenario's status is
     // STATUS_DONE
     scenario_manager_.Update(planning_start_point, *frame);
   } else if (result == scenario::Scenario::STATUS_UNKNOWN) {
+    //场景处理失败
     return Status(common::PLANNING_ERROR, "scenario returned unknown");
   }
   return Status::OK();

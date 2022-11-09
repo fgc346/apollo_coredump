@@ -51,6 +51,8 @@ bool PlanningComponent::Init() {
       << "failed to load planning config file "
       << ComponentBase::ConfigFilePath();
 
+  AERROR << "\n[fgc,add], config_ = " << config_.DebugString() << "\n";
+
   if (FLAGS_planning_offline_learning ||
       config_.learning_mode() != PlanningConfig::NO_LEARNING) {
     if (!message_process_.Init(config_, injector_)) {
