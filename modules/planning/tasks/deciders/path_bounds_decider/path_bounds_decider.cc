@@ -62,6 +62,7 @@ Status PathBoundsDecider::Process(
   CHECK_NOTNULL(reference_line_info);
 
   // Skip the path boundary decision if reusing the path.
+  // 如果重复利用path就跳过path boundary decision
   if (FLAGS_enable_skip_path_tasks && reference_line_info->path_reusable()) {
     return Status::OK();
   }

@@ -32,6 +32,10 @@
 namespace apollo {
 namespace planning {
 
+//轨迹拼接类
+// 从上一帧轨迹中找到离当前状态最近的点作为匹配点
+//
+
 class TrajectoryStitcher {
  public:
   TrajectoryStitcher() = delete;

@@ -50,6 +50,37 @@ double WrapAngle(const double angle) {
   return new_angle < 0 ? new_angle + M_PI * 2.0 : new_angle;
 }
 
+//函数目的是将[-2pi,2pi] 转化为[-pi, pi]
+
+//比较正常的写法
+
+/*
+***正常的写法
+double NormalizeAngle(const double angle) {
+    double a = std::fmod(angle, 2.0 * M_PI); 
+    if (a < -M_PI) {
+        a += (2.0 * M_PI);
+    } else if (a >= M_PI) { // 这里一般不加等号，为了和Apollo代码保持完全一致（映射到[-pi,pi))才加了等号。
+    	a -= (2.0 * M_PI);
+    }
+    return a;
+}
+*/
+
+/*
+****优化的写法
+double NormalizeAngle(const double angle) {
+    double a = std::fmod(angle + M_PI, 2.0 * M_PI); 
+    if (a < 0) {
+        a += M_PI;
+    } else { 
+    	a -= M_PI;
+    }
+    return a;
+}
+*/
+
+//相比第二种写法，去掉了else选项，就很难让人看得明白了，并没有提高运行效率，反而提高了迷惑性，很难看明白。
 double NormalizeAngle(const double angle) {
   double a = std::fmod(angle + M_PI, 2.0 * M_PI);
   if (a < 0.0) {

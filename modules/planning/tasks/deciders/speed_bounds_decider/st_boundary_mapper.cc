@@ -278,9 +278,11 @@ bool STBoundaryMapper::GetOverlapBoundaryPoints(
       for (double path_s = 0.0; path_s < path_len; path_s += step_length) {
         const auto curr_adc_path_point =
             discretized_path.Evaluate(path_s + discretized_path.front().s());
+        // 确认障碍物和无人车在该时间点是够有重叠，如果没有重叠，就可以忽略该时间点的障碍物
         if (CheckOverlap(curr_adc_path_point, obs_box, l_buffer)) {
           // Found overlap, start searching with higher resolution
-          const double backward_distance = -step_length;
+          const double backward_distance = -step_length; //下界初始距离
+          // 上界初始距离
           const double forward_distance = vehicle_param_.length() +
                                           vehicle_param_.width() +
                                           obs_box.length() + obs_box.width();
@@ -296,6 +298,7 @@ bool STBoundaryMapper::GetOverlapBoundaryPoints(
 
           // Keep shrinking by the resolution bidirectionally until finally
           // locating the tight upper and lower bounds.
+          //采用步步紧靠的方法，构造更紧凑的上下界low_s 和 high_s
           while (low_s < high_s) {
             if (find_low && find_high) {
               break;

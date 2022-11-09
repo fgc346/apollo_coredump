@@ -546,6 +546,7 @@ ObjectDecisionType Obstacle::MergeLongitudinalDecision(
   if (rhs.object_tag_case() == ObjectDecisionType::OBJECT_TAG_NOT_SET) {
     return lhs;
   }
+  //查找map容器中指定key的value值地址，否则抛出FatalException异常或终止进程;
   const auto lhs_val =
       FindOrDie(s_longitudinal_decision_safety_sorter_, lhs.object_tag_case());
   const auto rhs_val =

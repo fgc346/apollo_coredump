@@ -355,6 +355,8 @@ void OnLanePlanning::RunOnce(const LocalView& local_view,
       1.0 / static_cast<double>(FLAGS_planning_loop_rate);
 
   std::string replan_reason;
+  //执行轨迹拼接
+  //FLAGS_trajectory_stitching_preserved_length = 20
   std::vector<TrajectoryPoint> stitching_trajectory =
       TrajectoryStitcher::ComputeStitchingTrajectory(
           vehicle_state, start_timestamp, planning_cycle_time,

@@ -313,7 +313,7 @@ class PathBoundsDecider : public Decider {
   double adc_frenet_s_ = 0.0;
   double adc_frenet_sd_ = 0.0;
   double adc_frenet_l_ = 0.0;
-  double adc_frenet_ld_ = 0.0;
+  double adc_frenet_ld_ = 0.0;      // ld = dl/dt, dl = dl/ds 则有 ld = sd * dl
   double adc_l_to_lane_center_ = 0.0;
   double adc_lane_width_ = 0.0;
 

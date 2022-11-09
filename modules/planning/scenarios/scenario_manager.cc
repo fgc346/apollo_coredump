@@ -55,6 +55,7 @@ ScenarioManager::ScenarioManager(
     : injector_(injector) {}
 
 bool ScenarioManager::Init(const PlanningConfig& planning_config) {
+  // protobuf的copyfrom函数，与直接使用赋值有什么区别
   planning_config_.CopyFrom(planning_config);
   RegisterScenarios();
   default_scenario_type_ = ScenarioConfig::LANE_FOLLOW;

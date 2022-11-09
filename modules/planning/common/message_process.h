@@ -43,6 +43,8 @@
 
 namespace apollo {
 namespace planning {
+    
+//这个类主要也是为了基于学习的决策规划的数据处理，暂且略过，不详细解读
 
 class MessageProcess {
  public:

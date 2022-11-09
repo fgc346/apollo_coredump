@@ -121,6 +121,7 @@ std::vector<TrajectoryPoint> TrajectoryStitcher::ComputeStitchingTrajectory(
     const double planning_cycle_time, const size_t preserved_points_num,
     const bool replan_by_offset, const PublishableTrajectory* prev_trajectory,
     std::string* replan_reason) {
+  //FLAGS_enable_trajectory_stitcher = true
   if (!FLAGS_enable_trajectory_stitcher) {
     *replan_reason = "stitch is disabled by gflag.";
     return ComputeReinitStitchingTrajectory(planning_cycle_time, vehicle_state);
@@ -224,7 +225,12 @@ std::vector<TrajectoryPoint> TrajectoryStitcher::ComputeStitchingTrajectory(
   ADEBUG << "Time matched index:\t" << time_matched_index;
 
   auto matched_index = std::min(time_matched_index, position_matched_index);
-
+  //FGC ADD,2022年11月4日07:51:00
+  // 轨迹上的时间都是依次递增的
+  // time_matched_index 是由 veh_rel_time 在上一帧轨迹上找匹配点
+  // forward_time_index 是由 veh_rel_time + planning_cycle_time 在上一帧轨迹上找匹配点
+  // 因此可以确认 time_matched_index 一定小于 forward_time_index
+  //是否可以确认matched_index - preserved_points_num   一定小于 forward_time_index + 1
   std::vector<TrajectoryPoint> stitching_trajectory(
       prev_trajectory->begin() +
           std::max(0, static_cast<int>(matched_index - preserved_points_num)),

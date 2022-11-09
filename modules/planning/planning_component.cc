@@ -40,19 +40,23 @@ using apollo::storytelling::Stories;    //TODO 后面搞清楚这个是干嘛用
 
 bool PlanningComponent::Init() {
   injector_ = std::make_shared<DependencyInjector>();
-
+  //OnLanePlanning（车道规划，可用于城区及高速公路各种复杂道路）
+  //NaviPlanning（导航规划，主要用于高速公路）百度美研与长沙智能驾驶研究院合作开发，主要用于高速公路场景
+  // 默认使用车道规划，use_navigation_mode 默认为false(modules/common/data/global_flagfile.txt)
   if (FLAGS_use_navigation_mode) {
     planning_base_ = std::make_unique<NaviPlanning>(injector_);
   } else {
     planning_base_ = std::make_unique<OnLanePlanning>(injector_);
   }
 
+  //获取规划的配置参数 参见modules\planning\proto\planning_config.proto
   ACHECK(ComponentBase::GetProtoConfig(&config_))
       << "failed to load planning config file "
       << ComponentBase::ConfigFilePath();
 
   AERROR << "\n[fgc,add], config_ = " << config_.DebugString() << "\n";
 
+  // 基于学习的决策算法，目前不涉及，暂时不研究
   if (FLAGS_planning_offline_learning ||
       config_.learning_mode() != PlanningConfig::NO_LEARNING) {
     if (!message_process_.Init(config_, injector_)) {

@@ -37,6 +37,7 @@ PlanningBase::~PlanningBase() {}
 
 Status PlanningBase::Init(const PlanningConfig& config) {
   injector_->planning_context()->Init();
+  //任务工厂初始化
   TaskFactory::Init(config, injector_);
   return Status::OK();
 }
