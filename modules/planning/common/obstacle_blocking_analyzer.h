@@ -22,7 +22,8 @@ namespace planning {
 
 //判断是否为非移动的障碍物
 //输入参数 道路参考线信息类对象， 被判断的障碍物对象
-//判断是否足够远，是否是停止的车辆，是否是被其他障碍物阻塞了？通过这些条件来判断输入障碍物是否为非移动也就是静态障碍物。
+//判断是否足够远，是否是停止的车辆，是否是被其他障碍物阻塞了？
+// 通过这些条件来判断输入障碍物是否为非移动也就是静态障碍物。
 bool IsNonmovableObstacle(const ReferenceLineInfo& reference_line_info,
                           const Obstacle& obstacle);
 
