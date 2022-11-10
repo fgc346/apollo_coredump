@@ -19,6 +19,8 @@ message BareIntersectionStatus {
 }
 
 message ChangeLaneStatus {
+  //车辆换道状态
+  //IN_CHANGE_LANE 换道中、CHANGE_LANE_FINISHED 换道结束、CHANGE_LANE_FAILED 换道失败
   enum Status {
     IN_CHANGE_LANE = 1;        // during change lane state
     CHANGE_LANE_FAILED = 2;    // change lane failed
