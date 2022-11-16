@@ -541,9 +541,15 @@ double ReferenceLine::GetDrivingWidth(const SLBoundary& sl_boundary) const {
   double lane_left_width = 0.0;
   double lane_right_width = 0.0;
   GetLaneWidth(sl_boundary.start_s(), &lane_left_width, &lane_right_width);
-
+  //车道左侧通行距离 driving_left_width = lane_left_width - sl_boundary.end_l()
+  //车道右侧通行距离 driving_right_width =sl_boundary.start_l() - （-lane_right_width) 
+  // driving_right_width = lane_right_width + sl_boundary.start_l
+  //最后的可通行距离为 driving_width = max(driving_left_width, driving_right_width)
   double driving_width = std::max(lane_left_width - sl_boundary.end_l(),
                                   lane_right_width + sl_boundary.start_l());
+  //车辆可通行的宽度不能超过车道自车的宽度，这是障碍物在车道外的情况，障碍物在车道左侧或者右侧
+  // lane_width = lane_left_width + lane_right_width
+  // driving_width = min(lane_width, driving_width)
   driving_width = std::min(lane_left_width + lane_right_width, driving_width);
   ADEBUG << "Driving width [" << driving_width << "].";
   return driving_width;
@@ -565,6 +571,11 @@ bool ReferenceLine::IsOnLane(const SLBoundary& sl_boundary) const {
   double lane_left_width = 0.0;
   double lane_right_width = 0.0;
   map_path_.GetLaneWidth(middle_s, &lane_left_width, &lane_right_width);
+  //如果障碍物有一部分在车道内，就认为障碍物在车道上
+  // 障碍物不在车道上的判断条件为
+  // 障碍物在车道左边界外 sl_boundary.start_l() > lane_left_width || 
+  // 障碍物在车道右边界外 sl_boundary.end_l() < -lane_left_width
+  // a || b 等价于 !a && !b
   return sl_boundary.start_l() <= lane_left_width &&
          sl_boundary.end_l() >= -lane_right_width;
 }

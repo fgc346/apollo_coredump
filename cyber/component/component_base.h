@@ -38,6 +38,7 @@ namespace cyber {
 using apollo::cyber::proto::ComponentConfig;
 using apollo::cyber::proto::TimerComponentConfig;
 
+//enable_shared_from_this 可以让对象ComponentBase cb1 安全地生成其他额外的std::shared_ptr 实例，它们与cb1共享对象的所有权
 class ComponentBase : public std::enable_shared_from_this<ComponentBase> {
  public:
   template <typename M>
@@ -77,6 +78,7 @@ class ComponentBase : public std::enable_shared_from_this<ComponentBase> {
       } else {
         config_file_path_ = config.config_file_path();
       }
+      AINFO << "[fgc,add] LoadConfigFiles, config_file_path_ = " << config_file_path_;
     }
 
     if (!config.flag_file_path().empty()) {
@@ -85,6 +87,7 @@ class ComponentBase : public std::enable_shared_from_this<ComponentBase> {
         flag_file_path =
             common::GetAbsolutePath(common::WorkRoot(), flag_file_path);
       }
+      AINFO << "[fgc,add] LoadConfigFiles, flag_file_path = " << flag_file_path;
       google::SetCommandLineOption("flagfile", flag_file_path.c_str());
     }
   }

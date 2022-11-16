@@ -64,6 +64,8 @@ void ModuleArgument::ParseArgument(const int argc, char* const argv[]) {
 void ModuleArgument::GetOptions(const int argc, char* const argv[]) {
   opterr = 0;  // extern int opterr
   int long_index = 0;
+  //short_opts是一个选项字符串，对应到命令行就是-h, -d, -p, -s；冒号表示参数，一个冒号就是表示这个选项后面必须带有参数，没有带参数会报错
+  // 即-d，-p,-s都必须有参数
   const std::string short_opts = "hd:p:s:";
   static const struct option long_opts[] = {
       {"help", no_argument, nullptr, 'h'},
@@ -84,7 +86,12 @@ void ModuleArgument::GetOptions(const int argc, char* const argv[]) {
     DisplayUsage();
     exit(0);
   }
-
+  //给了解析 命令行参数
+  //如 mainboard -d modules/routing/dag/routing.dag -d modules/planning/dag/planning.dag
+  //mainboard 是可执行程序，后面的一系列参数就是命令行参数
+  //dag_conf_list_ 是总共有几个dag文件的路径
+  // 比如上面的命令就是，dag_conf_list_[0] = "modules/routing/dag/routing.dag"
+  //dag_conf_list_[1] = "modules/planning/dag/planning.dag"
   do {
     int opt =
         getopt_long(argc, argv, short_opts.c_str(), long_opts, &long_index);

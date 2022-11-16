@@ -80,3 +80,5 @@ tools/FlameGraph
 
 # jetbrain profiler
 .DS_Store
+#其他文件
+tags

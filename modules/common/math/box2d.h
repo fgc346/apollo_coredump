@@ -156,6 +156,7 @@ class Box2d {
    * @brief Getter of the size of the diagonal of the box
    * @return The diagonal size of the box
    */
+  // fgc add，对角线，box的对角线长度
   double diagonal() const { return std::hypot(length_, width_); }
 
   /**

@@ -31,6 +31,11 @@ void CartesianFrenetConverter::cartesian_to_frenet(
     const double v, const double a, const double theta, const double kappa,
     std::array<double, 3>* const ptr_s_condition,
     std::array<double, 3>* const ptr_d_condition) {
+  //Tr = [cosθr, sinθr]
+  //Nr = [x-xr,y-yr]
+  //l的方向由 Tr X Nr 决定，使用右手准则判断，当前位置相对于参考点的左侧 l的方向为正；
+  // 当前位置相对于参考点的右侧，l的方向为负
+  //Tr X Nr =  [cosθr, sinθr] X [x-xr,y-yr] = cosθr*(y-yr) - sinθr*(x-xr)
   const double dx = x - rx;
   const double dy = y - ry;
 
@@ -38,30 +43,41 @@ void CartesianFrenetConverter::cartesian_to_frenet(
   const double sin_theta_r = std::sin(rtheta);
 
   const double cross_rd_nd = cos_theta_r * dy - sin_theta_r * dx;
+  //1 求l l的大小为|l| = sqrt(dx*dx + dy*dy),方向为sign(cosθr*(y-yr) - sinθr*(x-xr))
   ptr_d_condition->at(0) =
       std::copysign(std::sqrt(dx * dx + dy * dy), cross_rd_nd);
 
+  // Δθ = θx-θr
   const double delta_theta = theta - rtheta;
   const double tan_delta_theta = std::tan(delta_theta);
   const double cos_delta_theta = std::cos(delta_theta);
 
+  //one_minus_kappa_r_d = 1-Kr*l
   const double one_minus_kappa_r_d = 1 - rkappa * ptr_d_condition->at(0);
+  //2 求l'
+  //l' = (1 - Kr*l) * tan(Δθ)
   ptr_d_condition->at(1) = one_minus_kappa_r_d * tan_delta_theta;
 
+  // 3 kappa_r_d_prime = Kr*l' + Kr'*l
   const double kappa_r_d_prime =
       rdkappa * ptr_d_condition->at(0) + rkappa * ptr_d_condition->at(1);
 
+
+//l" = -(Kr*l' + Kr'*l)tan(Δθ) + (1-Kr*l)/(cos(Δθ)*cos(Δθ)) * [(1-Kr*l)/cos(Δθ)*Kx - Kr]
   ptr_d_condition->at(2) =
       -kappa_r_d_prime * tan_delta_theta +
       one_minus_kappa_r_d / cos_delta_theta / cos_delta_theta *
           (kappa * one_minus_kappa_r_d / cos_delta_theta - rkappa);
 
   ptr_s_condition->at(0) = rs;
-
+  // ds/dt = Vx *cosΔθ / (1 - Kr*l)
   ptr_s_condition->at(1) = v * cos_delta_theta / one_minus_kappa_r_d;
 
+  //delta_theta_prime = (1-Kr*l)/cosΔθ * Kx - Kr
   const double delta_theta_prime =
       one_minus_kappa_r_d / cos_delta_theta * kappa - rkappa;
+  //求s的二阶导
+  // d(ds/dt)/dt = (ax*cosΔθ - (ds/dt)*(ds/dt) * [l'*((1-Kr*l)/cosΔθ * Kx - Kr) - Kr*l' + Kr'*l]) / (1-Kr*l)
   ptr_s_condition->at(2) =
       (a * cos_delta_theta -
        ptr_s_condition->at(1) * ptr_s_condition->at(1) *
@@ -96,6 +112,8 @@ void CartesianFrenetConverter::frenet_to_cartesian(
   const double cos_theta_r = std::cos(rtheta);
   const double sin_theta_r = std::sin(rtheta);
 
+  //x = xr - sinθr * l
+  // y = yr + cosθr * l
   *ptr_x = rx - sin_theta_r * d_condition[0];
   *ptr_y = ry + cos_theta_r * d_condition[0];
 

@@ -17,6 +17,7 @@
 ###############################################################################
 
 TOP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+echo "[fgc,add] TOP_DIR = ${TOP_DIR}"
 . "${TOP_DIR}/scripts/apollo_base.sh"
 
 # run_module command_name module_name

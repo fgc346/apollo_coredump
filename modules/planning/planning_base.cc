@@ -29,7 +29,9 @@ namespace planning {
 using apollo::common::Status;
 
 PlanningBase::PlanningBase(const std::shared_ptr<DependencyInjector>& injector)
-    : injector_(injector) {}
+    : injector_(injector) {
+        ADEBUG << "[fgc,add], PlanningBase constructor is called";
+    }
 
 PlanningBase::~PlanningBase() {}
 

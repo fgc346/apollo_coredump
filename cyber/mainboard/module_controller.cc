@@ -57,8 +57,12 @@ bool ModuleController::LoadAll() {
     total_component_nums += GetComponentNum(module_path);
     paths.emplace_back(std::move(module_path));
   }
+  AINFO << "[fgc,add] total_component_nums = " << total_component_nums;
   if (has_timer_component) {
     total_component_nums += scheduler::Instance()->TaskPoolSize();
+    AINFO << "[fgc,add], timer_component, total_component_num = "
+          << total_component_nums << " the taskpoolsize of scheduler = "
+          << scheduler::Instance()->TaskPoolSize();
   }
   common::GlobalData::Instance()->SetComponentNums(total_component_nums);
   for (auto module_path : paths) {
@@ -72,9 +76,12 @@ bool ModuleController::LoadAll() {
 }
 
 bool ModuleController::LoadModule(const DagConfig& dag_config) {
+  AINFO << "[fgc,add] the dag_config = " << dag_config.DebugString();
   const std::string work_root = common::WorkRoot();
+  AINFO << "[fgc,add] work_root = " << work_root;
 
   for (auto module_config : dag_config.module_config()) {
+    AINFO << "[fgc, add], module_config = \n" << module_config.DebugString();
     std::string load_path;
     if (module_config.module_library().front() == '/') {
       load_path = module_config.module_library();
@@ -89,8 +96,14 @@ bool ModuleController::LoadModule(const DagConfig& dag_config) {
     }
 
     class_loader_manager_.LoadLibrary(load_path);
+    AINFO
+        << "\n[fgc,add] after load the so, the module_config component size = "
+        << module_config.components().size();
 
     for (auto& component : module_config.components()) {
+      AINFO << "[fgc,add] component = " << component.DebugString();
+      AINFO << "[fgc,add], input the components, class_name = "
+            << component.class_name();
       const std::string& class_name = component.class_name();
       std::shared_ptr<ComponentBase> base =
           class_loader_manager_.CreateClassObj<ComponentBase>(class_name);
@@ -98,9 +111,14 @@ bool ModuleController::LoadModule(const DagConfig& dag_config) {
         return false;
       }
       component_list_.emplace_back(std::move(base));
+      AINFO << "[fgc,add], update component_list_ finished\n";
     }
 
+    AINFO << "[fgc,add] after component, the component_list_.size = " << component_list_.size();
+
     for (auto& component : module_config.timer_components()) {
+      AINFO << "[fgc,add], input the timer_components, class_name = "
+            << component.class_name();
       const std::string& class_name = component.class_name();
       std::shared_ptr<ComponentBase> base =
           class_loader_manager_.CreateClassObj<ComponentBase>(class_name);
@@ -109,6 +127,7 @@ bool ModuleController::LoadModule(const DagConfig& dag_config) {
       }
       component_list_.emplace_back(std::move(base));
     }
+    AINFO << "[fgc,add] after timer_component, the component_list_.size = " << component_list_.size();
   }
   return true;
 }

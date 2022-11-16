@@ -32,9 +32,13 @@ namespace planning {
 using apollo::common::VehicleConfigHelper;
 using apollo::hdmap::HDMapUtil;
 
+//这类定义了两个阈值，自车距离阈值35m，障碍物距离阈值15m，干什么用的？
 constexpr double kAdcDistanceThreshold = 35.0;  // unit: m
 constexpr double kObstaclesDistanceThreshold = 15.0;
 
+//判断是否为非移动的障碍物
+//输入参数 道路参考线信息类对象， 被判断的障碍物对象
+//判断是否足够远，是否是停止的车辆，是否是被其他障碍物阻塞了？通过这些条件来判断输入障碍物是否为非移动也就是静态障碍物。
 bool IsNonmovableObstacle(const ReferenceLineInfo& reference_line_info,
                           const Obstacle& obstacle) {
   // Obstacle is far away.
@@ -45,6 +49,8 @@ bool IsNonmovableObstacle(const ReferenceLineInfo& reference_line_info,
     return false;
   }
 
+  //如果障碍物的感知SL边界的起始s比自车SL边界终点s+35m还要大
+  //就说明障碍物离自车非常远？无需考虑直接返回false?
   // Obstacle is parked obstacle.
   if (IsParkedVehicle(reference_line_info.reference_line(), &obstacle)) {
     ADEBUG << "It is Parked and NON-MOVABLE.";
@@ -85,14 +91,30 @@ bool IsNonmovableObstacle(const ReferenceLineInfo& reference_line_info,
 
 // This is the side-pass condition for every obstacle.
 // TODO(all): if possible, transform as many function parameters into GFLAGS.
+// 判断一个障碍物是否阻塞路径，需要自车绕行
+/**
+ * @brief 判断一个障碍物是否阻塞路径，需要自车绕行？
+ * @param frame包含了一个周期内规划所有信息包括道路参考线等
+ * @param 感兴趣的障碍物obstacle
+ * @param 判断一个障碍物是否停止的速度阈值block_obstacle_min_speed
+ * @param 到前方阻塞障碍物需要绕行的最小距离min_front_sidepass_distance
+ *        如果太近了，出于安全考虑，不绕行。
+ * @param 是否要考虑被阻塞障碍物本身被其他障碍物阻塞了enable_obstacle_blocked_check
+ *        如果前方的障碍物也是被前面的障碍物阻塞，那么就不要尝试绕行它？
+ */
 bool IsBlockingObstacleToSidePass(const Frame& frame, const Obstacle* obstacle,
                                   double block_obstacle_min_speed,
                                   double min_front_sidepass_distance,
                                   bool enable_obstacle_blocked_check) {
+  // 获取必要的信息
+  //frame里的第一条参考线信息类对象
   // Get the necessary info.
   const auto& reference_line_info = frame.reference_line_info().front();
+  // 道路参考线
   const auto& reference_line = reference_line_info.reference_line();
+  //自车SL边界
   const SLBoundary& adc_sl_boundary = reference_line_info.AdcSlBoundary();
+  //路径决策类对象
   const PathDecision& path_decision = reference_line_info.path_decision();
   ADEBUG << "Evaluating Obstacle: " << obstacle->Id();
 
@@ -103,6 +125,8 @@ bool IsBlockingObstacleToSidePass(const Frame& frame, const Obstacle* obstacle,
   }
 
   // Obstacle is moving.
+  // 如果障碍物非静态，或者障碍物的速度大于判断停车的速度阈值，也认为是非静态障碍物
+  //无需绕行
   if (!obstacle->IsStatic() || obstacle->speed() > block_obstacle_min_speed) {
     ADEBUG << " - It is non-static.";
     return false;
@@ -115,6 +139,7 @@ bool IsBlockingObstacleToSidePass(const Frame& frame, const Obstacle* obstacle,
   }
 
   // Obstacle is far away.
+  //障碍物的SL边界的起始s 比 自车SL边界的终点s + 15m就认为障碍物足够远，无需绕行
   static constexpr double kAdcDistanceSidePassThreshold = 15.0;
   if (obstacle->PerceptionSLBoundary().start_s() >
       adc_sl_boundary.end_s() + kAdcDistanceSidePassThreshold) {
@@ -123,18 +148,23 @@ bool IsBlockingObstacleToSidePass(const Frame& frame, const Obstacle* obstacle,
   }
 
   // Obstacle is too close.
+  // 障碍物太近了
+  //如果自车SL边界的终点s + 最小绕行距离阈值 > 输入障碍物SL边界的起点s，出于安全考虑，放弃绕行
   if (adc_sl_boundary.end_s() + min_front_sidepass_distance >
       obstacle->PerceptionSLBoundary().start_s()) {
     ADEBUG << " - It is too close to side-pass.";
     return false;
   }
 
+  // 障碍物没有阻塞我们的驾驶路径，直接返回false，调用IsBlockingDrivingPathObstacle函数进行判断
   // Obstacle is not blocking our path.
   if (!IsBlockingDrivingPathObstacle(reference_line, obstacle)) {
     ADEBUG << " - It is not blocking our way.";
     return false;
   }
 
+  // 障碍物也被其他障碍物阻塞了，也放弃绕行
+  //如果打开障碍物被其他障碍物阻塞的检查开关 且 输入障碍物不是个静止车辆
   // Obstacle is blocked by others too.
   if (enable_obstacle_blocked_check &&
       !IsParkedVehicle(reference_line, obstacle)) {
@@ -186,6 +216,9 @@ bool IsBlockingDrivingPathObstacle(const ReferenceLine& reference_line,
       VehicleConfigHelper::GetConfig().vehicle_param().width();
   ADEBUG << " (driving width = " << driving_width
          << ", adc_width = " << adc_width << ")";
+  //如果驾驶宽度 > 自车宽度 + 0.3m(左右一起0.3m障碍物缓冲) +  0.1m(绕行缓冲)，那么则说明障碍物没有阻塞我们的驾驶路径
+  //FLAGS_static_obstacle_nudge_l_buffer google gflags的老用法
+  //FLAGS_代表去modules\planning\common\planning_gflags.cc取出static_obstacle_nudge_l_buffer的值，默认为0.3m
   if (driving_width > adc_width + FLAGS_static_obstacle_nudge_l_buffer +
                           FLAGS_side_pass_driving_width_l_buffer) {
     // TODO(jiacheng): make this a GFLAG:
@@ -198,6 +231,9 @@ bool IsBlockingDrivingPathObstacle(const ReferenceLine& reference_line,
   return true;
 }
 
+// 判断是否为停止的车辆
+//输入参数 道路参考线类对象，障碍物对象
+//用障碍物对象的xy坐标去判断是否处在停车车道？然后又离右边道路边缘足够近？然后障碍物还属于静态障碍物，都满足则说明是停在边上的静止的车
 bool IsParkedVehicle(const ReferenceLine& reference_line,
                      const Obstacle* obstacle) {
   if (!FLAGS_enable_scenario_side_pass_multiple_parked_obstacles) {

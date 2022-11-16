@@ -36,7 +36,7 @@ using apollo::perception::TrafficLightDetection;
 using apollo::relative_map::MapMsg;
 using apollo::routing::RoutingRequest;
 using apollo::routing::RoutingResponse;
-using apollo::storytelling::Stories;
+using apollo::storytelling::Stories;    //TODO 后面搞清楚这个是干嘛用的
 
 bool PlanningComponent::Init() {
   injector_ = std::make_shared<DependencyInjector>();
@@ -50,6 +50,8 @@ bool PlanningComponent::Init() {
   ACHECK(ComponentBase::GetProtoConfig(&config_))
       << "failed to load planning config file "
       << ComponentBase::ConfigFilePath();
+
+  AERROR << "\n[fgc,add], config_ = " << config_.DebugString() << "\n";
 
   if (FLAGS_planning_offline_learning ||
       config_.learning_mode() != PlanningConfig::NO_LEARNING) {
@@ -121,6 +123,7 @@ bool PlanningComponent::Proc(
     const std::shared_ptr<canbus::Chassis>& chassis,
     const std::shared_ptr<localization::LocalizationEstimate>&
         localization_estimate) {
+  ADEBUG << "\n[fgc,add], the planning period begin\n";
   ACHECK(prediction_obstacles != nullptr);
 
   // check and process possible rerouting request
@@ -200,6 +203,8 @@ bool PlanningComponent::Proc(
   // record in history
   auto* history = injector_->history();
   history->Add(adc_trajectory_pb);
+
+  ADEBUG << "\n[fgc,add], the planning period end\n";
 
   return true;
 }

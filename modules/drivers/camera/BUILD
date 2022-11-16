@@ -49,7 +49,6 @@ cc_library(
     name = "camera_component_lib",
     srcs = ["camera_component.cc"],
     hdrs = ["camera_component.h"],
-    copts = CAMERA_COPTS,
     deps = [
         ":camera",
         "//cyber",
@@ -63,7 +62,6 @@ cc_library(
     name = "compress_component_lib",
     srcs = ["compress_component.cc"],
     hdrs = ["compress_component.h"],
-    copts = CAMERA_COPTS,
     deps = [
         "//cyber",
         "//modules/common/proto:error_code_cc_proto",

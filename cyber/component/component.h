@@ -141,20 +141,27 @@ class Component<M0, M1, M2, NullType> : public ComponentBase {
 template <typename M0>
 bool Component<M0, NullType, NullType, NullType>::Process(
     const std::shared_ptr<M0>& msg) {
+//读取原子变量is_shutdown_的值
   if (is_shutdown_.load()) {
     return true;
   }
   return Proc(msg);
 }
 
+//我们正在特例化的模板名为Component，全特例化版本Component<NullType, NullType, NullType, NullType> 实际上就是一个类的定义
+//下面就是对类Component<NullType, NullType, NullType，NullType>的成员函数在类外的定义，和一个普通类的成员函数定义并没有什么区别
+//这里实际上严谨的定义应该是Component<NullType, NullType, NullType, NullType>::Initialize
 inline bool Component<NullType, NullType, NullType>::Initialize(
     const ComponentConfig& config) {
+  AINFO << "[fgc,add] config = " << config.DebugString(); 
   node_.reset(new Node(config.name()));
   LoadConfigFiles(config);
+  AINFO << "[fgc,add] Component<>::Initialize begin Init";
   if (!Init()) {
     AERROR << "Component Init() failed." << std::endl;
     return false;
   }
+  AINFO << "[fgc,add] Component<NullType, NullType, NullType> Init finished";
   return true;
 }
 
@@ -168,12 +175,12 @@ bool Component<M0, NullType, NullType, NullType>::Initialize(
     AERROR << "Invalid config file: too few readers.";
     return false;
   }
-
+  AINFO << "[fgc,add] Component<M0, NullType, NullType, NullType>::Initialize begin Init";
   if (!Init()) {
     AERROR << "Component Init() failed.";
     return false;
   }
-
+  AINFO << "[fgc,add] Component<M0, NullType, NullType, NullType> Init finished";
   bool is_reality_mode = GlobalData::Instance()->IsRealityMode();
 
   ReaderConfig reader_cfg;
@@ -525,6 +532,9 @@ bool Component<M0, M1, M2, M3>::Initialize(const ComponentConfig& config) {
   }
 
   auto sched = scheduler::Instance();
+  //将当前对象的this指针 强制转换成 一个weak_ptr对象，这样使用者self 就不能delete this指针指向的对象了
+  // self 和 this指针 指向相同的对象，都是当前对象自身，由于是弱共享，创建的self 不会改变this的引用计数
+  // self 指向的对象可能被释放掉。
   std::weak_ptr<Component<M0, M1, M2, M3>> self =
       std::dynamic_pointer_cast<Component<M0, M1, M2, M3>>(shared_from_this());
   auto func =

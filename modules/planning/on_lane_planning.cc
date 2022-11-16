@@ -95,6 +95,8 @@ Status OnLanePlanning::Init(const PlanningConfig& config) {
       << "Failed to load traffic rule config file "
       << FLAGS_traffic_rule_config_filename;
 
+  ADEBUG << "[fgc,add], traffic_rule_configs_ = " << traffic_rule_configs_.DebugString();
+
   // clear planning history
   injector_->history()->Clear();
 

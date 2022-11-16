@@ -75,6 +75,8 @@ ReferenceLineProvider::ReferenceLineProvider(
                                          &smoother_config_))
       << "Failed to load smoother config file "
       << FLAGS_smoother_config_filename;
+  ADEBUG << "[fgc,add] smoother_config_ = " << smoother_config_.DebugString();
+  //参考线平滑算法
   if (smoother_config_.has_qp_spline()) {
     smoother_.reset(new QpSplineReferenceLineSmoother(smoother_config_));
   } else if (smoother_config_.has_spiral()) {
@@ -198,6 +200,7 @@ void ReferenceLineProvider::UpdateReferenceLine(
 void ReferenceLineProvider::GenerateThread() {
   while (!is_stop_) {
     is_reference_line_updated_ = true;
+    // 参考线线程的更新周期是50ms
     static constexpr int32_t kSleepTime = 50;  // milliseconds
     cyber::SleepFor(std::chrono::milliseconds(kSleepTime));
     const double start_time = Clock::NowInSeconds();

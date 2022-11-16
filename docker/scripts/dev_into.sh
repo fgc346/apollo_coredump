@@ -16,7 +16,7 @@
 # limitations under the License.
 ###############################################################################
 DOCKER_USER="${USER}"
-DEV_CONTAINER="apollo_dev_${USER}"
+DEV_CONTAINER="apollo_dev_${USER}_learn"
 
 xhost +local:root 1>/dev/null 2>&1
 

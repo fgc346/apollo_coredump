@@ -738,7 +738,7 @@ void Obstacle::CheckLaneBlocking(const ReferenceLine& reference_line) {
   DCHECK(sl_boundary_.has_end_s());
   DCHECK(sl_boundary_.has_start_l());
   DCHECK(sl_boundary_.has_end_l());
-
+  //[fgc，add]障碍物占据了车道中心线，就认为阻塞了车道，条件有点严苛
   if (sl_boundary_.start_l() * sl_boundary_.end_l() < 0.0) {
     is_lane_blocking_ = true;
     return;
