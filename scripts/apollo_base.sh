@@ -138,6 +138,7 @@ function decide_task_dir() {
 function is_stopped_customized_path() {
   MODULE_PATH=$1
   MODULE=$2
+  echo "[fgc,add] is_stopped_customized_path, MODULE_PATH = ${MODULE_PATH},MODULE = ${MODULE}"
   NUM_PROCESSES="$(pgrep -f "modules/${MODULE_PATH}/launch/${MODULE}.launch" | grep -cv '^1$')"
   if [ "${NUM_PROCESSES}" -eq 0 ]; then
     return 1
@@ -295,6 +296,7 @@ function run_customized_path() {
   local module_path=$1
   local module=$2
   local cmd=$3
+  echo "[fgc,add] run_customized_path, module_path = $module_path, module = $module, cmd = $cmd"
   shift 3
   case $cmd in
     start)
@@ -348,6 +350,7 @@ function record_bag_env_log() {
 # run command_name module_name
 function run_module() {
   local module=$1
+  echo "[fgc,add] run_module,module = $module"
   shift
   run_customized_path $module $module "$@"
 }

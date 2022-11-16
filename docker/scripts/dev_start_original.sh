@@ -22,7 +22,6 @@ CACHE_ROOT_DIR="${APOLLO_ROOT_DIR}/.cache"
 
 DOCKER_REPO="apolloauto/apollo"
 DEV_CONTAINER="apollo_dev_${USER}_learn"
-#修改容器中的主机名
 DEV_INSIDE="in-dev-docker_apollo"
 
 SUPPORTED_ARCHS=(x86_64 aarch64)
@@ -381,10 +380,9 @@ function main() {
     local gid="$(id -g)"
 
     set -x
-    #启动容器命令,去掉将主机网络和进程对容器可见,-p将设置的dreamviewer的端口20000和本地端口20000一起映射出来
+
     ${DOCKER_RUN_CMD} -itd \
         --privileged \
-        -p 20000:20000 \
         --name "${DEV_CONTAINER}" \
         -e DISPLAY="${display}" \
         -e DOCKER_USER="${user}" \
@@ -399,6 +397,7 @@ function main() {
         ${MAP_VOLUMES_CONF} \
         ${OTHER_VOLUMES_CONF} \
         ${local_volumes} \
+        --net host \
         -w /apollo \
         --add-host "${DEV_INSIDE}:127.0.0.1" \
         --add-host "${local_host}:127.0.0.1" \

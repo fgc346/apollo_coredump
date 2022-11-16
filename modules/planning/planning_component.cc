@@ -123,6 +123,7 @@ bool PlanningComponent::Proc(
     const std::shared_ptr<canbus::Chassis>& chassis,
     const std::shared_ptr<localization::LocalizationEstimate>&
         localization_estimate) {
+  ADEBUG << "\n[fgc,add], the planning period begin\n";
   ACHECK(prediction_obstacles != nullptr);
 
   // check and process possible rerouting request
@@ -202,6 +203,8 @@ bool PlanningComponent::Proc(
   // record in history
   auto* history = injector_->history();
   history->Add(adc_trajectory_pb);
+
+  ADEBUG << "\n[fgc,add], the planning period end\n";
 
   return true;
 }

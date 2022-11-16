@@ -72,6 +72,7 @@ int Destination::MakeDecisions(Frame* frame,
   const auto& adc_sl = reference_line_info->AdcSlBoundary();
   const auto& dest =
       injector_->planning_context()->mutable_planning_status()->destination();
+  //[fgc,add] 在目的地设置虚拟障碍物
   if (adc_sl.start_s() > dest_sl.s() && !dest.has_passed_destination()) {
     ADEBUG << "Destination at back, but we have not reached destination yet";
     return 0;
@@ -79,7 +80,7 @@ int Destination::MakeDecisions(Frame* frame,
 
   const std::string stop_wall_id = FLAGS_destination_obstacle_id;
   const std::vector<std::string> wait_for_obstacle_ids;
-
+  //[fgc,add], enable_scenario_pull_over 默认设置为false
   if (FLAGS_enable_scenario_pull_over) {
     const auto& pull_over_status =
         injector_->planning_context()->planning_status().pull_over();
@@ -107,6 +108,7 @@ int Destination::MakeDecisions(Frame* frame,
 
   // build stop decision
   ADEBUG << "BuildStopDecision: destination";
+  //[fgc,add], FLAGS_virtual_stop_wall_length = 0.1, stop_distance = 0.5
   const double dest_lane_s =
       std::fmax(0.0, routing_end.s() - FLAGS_virtual_stop_wall_length -
                          config_.destination().stop_distance());

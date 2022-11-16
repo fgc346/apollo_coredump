@@ -38,11 +38,12 @@ function print_usage() {
 
 function main() {
   local mycfg="$(basename ${BAZEL_CONF})"
+  echo "[fgc,add], mycfg = ${mycfg}"
   if [[ "$#" -eq 0 ]]; then
     print_usage
     exit 1
   fi
-
+  echo "\$1 = $1"
   case "$1" in
     --clean)
       rm -f "${BAZEL_CONF}"
