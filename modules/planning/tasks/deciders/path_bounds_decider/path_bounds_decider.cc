@@ -63,6 +63,7 @@ Status PathBoundsDecider::Process(
 
   // Skip the path boundary decision if reusing the path.
   // 如果重复利用path就跳过path boundary decision
+  // 如果道路重用置位，则跳过PathBoundsDecider
   if (FLAGS_enable_skip_path_tasks && reference_line_info->path_reusable()) {
     return Status::OK();
   }
@@ -100,6 +101,11 @@ Status PathBoundsDecider::Process(
                                          kPathBoundsDeciderResolution,
                                          fallback_path_bound_pair);
   candidate_path_boundaries.back().set_label("fallback");
+
+
+  // 根据场景生成另外一条path_bound
+  // 依次判断是否处于pull_over、lane_change、regular；当处于其中一个场景，计算对应的path_bound并返回结果；
+  // 即以上3种场景，只会选一种生成对应的根据场景生成另外一条path_bound
 
   // If pull-over is requested, generate pull-over path boundary.
   auto* pull_over_status = injector_->planning_context()
@@ -144,15 +150,22 @@ Status PathBoundsDecider::Process(
       pull_over_debug->set_length_back(pull_over_status->length_back());
       pull_over_debug->set_width_left(pull_over_status->width_left());
       pull_over_debug->set_width_right(pull_over_status->width_right());
-
+      //[fgc,add],如果生成了pull-over的道路边界，就不会再继续判断是否是换道或者是规则场景下生成的path boundary
       return Status::OK();
     }
   }
 
   // If it's a lane-change reference-line, generate lane-change path boundary.
+  //在planning.conf中enable_smarter_lane_change设置为true
+   // 通过判断当前reference_line 是否为目标车道，来进行判断
   if (FLAGS_enable_smarter_lane_change &&
       reference_line_info->IsChangeLanePath()) {
     PathBound lanechange_path_bound;
+    // 当前reference_line 如果是目标path，则计算lanechange_path_bound
+    // 首先根据借道与否，用道路宽度来生成基本的path bound
+    // 然后遍历path上的每个点，并且判断这个点上的障碍物，利用障碍物的边界来修正path bound
+    // 如果目标在左边将left_bound 设置为目标右边界
+    // 如果目标在右边，将right_bound设置为目标的左边界
     Status ret = GenerateLaneChangePathBound(*reference_line_info,
                                              &lanechange_path_bound);
     if (!ret.ok()) {
@@ -192,7 +205,7 @@ Status PathBoundsDecider::Process(
   // Generate regular path boundaries.
   std::vector<LaneBorrowInfo> lane_borrow_info_list;
   lane_borrow_info_list.push_back(LaneBorrowInfo::NO_BORROW);
-
+  // 判断是否进行借道，以及借道的方向
   if (reference_line_info->is_path_lane_borrow()) {
     const auto& path_decider_status =
         injector_->planning_context()->planning_status().path_decider();
@@ -277,7 +290,7 @@ void PathBoundsDecider::InitPathBoundsDecider(
     planning_start_point =
         InferFrontAxeCenterFromRearAxeCenter(planning_start_point);
   }
-  ADEBUG << "Plan at the starting point: x = "
+  ADEBUG << std::setprecision(10) << "Plan at the starting point: x = "
          << planning_start_point.path_point().x()
          << ", y = " << planning_start_point.path_point().y()
          << ", and angle = " << planning_start_point.path_point().theta();
@@ -285,6 +298,7 @@ void PathBoundsDecider::InitPathBoundsDecider(
   // Initialize some private variables.
   // ADC s/l info.
   auto adc_sl_info = reference_line.ToFrenetFrame(planning_start_point);
+  // [fgc,add], adc_frenet_s 是规划起始点在frenet的起始位置
   adc_frenet_s_ = adc_sl_info.first[0];
   adc_frenet_l_ = adc_sl_info.second[0];
   adc_frenet_sd_ = adc_sl_info.first[1];
@@ -304,7 +318,7 @@ void PathBoundsDecider::InitPathBoundsDecider(
     adc_lane_width_ = lane_left_width + lane_right_width;
   }
 }
-
+//[fgc,add] 从后轴中心到前轴中心的转换
 common::TrajectoryPoint PathBoundsDecider::InferFrontAxeCenterFromRearAxeCenter(
     const common::TrajectoryPoint& traj_point) {
   double front_to_rear_axe_distance =
@@ -898,15 +912,21 @@ bool PathBoundsDecider::IsContained(
   return true;
 }
 
+//[fgc,add] 初始化path边界，从adc当前位置，开始采样
 bool PathBoundsDecider::InitPathBoundary(
     const ReferenceLineInfo& reference_line_info, PathBound* const path_bound) {
   // Sanity checks.
   CHECK_NOTNULL(path_bound);
   path_bound->clear();
-  const auto& reference_line = reference_line_info.reference_line();
+  const auto& reference_line = reference_line_info.reference_line();  //读取reference_line信息
 
   // Starting from ADC's current position, increment until the horizon, and
   // set lateral bounds to be infinite at every spot.
+  //[fgc,add] 从adc当前位置开始，以0.5m为间隔取点，直到终点，将 [左, 右] 边界设置为double的 [lowest, max]
+  ADEBUG << "[fgc,add], adc_frenet_s = " << adc_frenet_s_ << 
+  " current cruise speed = " << reference_line_info.GetCruiseSpeed()
+  << " trajectory time length = " << FLAGS_trajectory_time_length
+  << " path bounds decider horizon = " << kPathBoundsDeciderHorizon;
   for (double curr_s = adc_frenet_s_;
        curr_s < std::fmin(adc_frenet_s_ +
                               std::fmax(kPathBoundsDeciderHorizon,
@@ -1135,6 +1155,7 @@ bool PathBoundsDecider::GetBoundaryFromLanesAndADC(
     double curr_lane_left_width = 0.0;
     double curr_lane_right_width = 0.0;
     double offset_to_lane_center = 0.0;
+    //获取当前车道的宽度
     if (!reference_line.GetLaneWidth(curr_s, &curr_lane_left_width,
                                      &curr_lane_right_width)) {
       AWARN << "Failed to get lane width at s = " << curr_s;
@@ -1162,6 +1183,7 @@ bool PathBoundsDecider::GetBoundaryFromLanesAndADC(
 
     // 2. Get the neighbor lane widths at the current point.
     double curr_neighbor_lane_width = 0.0;
+    //是否可以借道
     if (CheckLaneBoundaryType(reference_line_info, curr_s, lane_borrow_info)) {
       hdmap::Id neighbor_lane_id;
       if (lane_borrow_info == LaneBorrowInfo::LEFT_BORROW) {

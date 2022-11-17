@@ -29,7 +29,7 @@ DEFINE_string(static_file_dir, "/apollo/modules/dreamview/frontend/dist",
               "The path to the dreamview distribution directory. The default "
               "value points to built-in version from the Apollo project.");
 
-DEFINE_string(server_ports, "8888",
+DEFINE_string(server_ports, "20000",
               "Comma-separated list of ports to listen on. If the port is SSL, "
               "a letter s must be appended, for example, 80,443s will open "
               "port 80 and port 443.");

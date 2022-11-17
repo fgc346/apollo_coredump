@@ -127,6 +127,7 @@ bool PlanningComponent::Proc(
     const std::shared_ptr<canbus::Chassis>& chassis,
     const std::shared_ptr<localization::LocalizationEstimate>&
         localization_estimate) {
+  ADEBUG << "\n[fgc,add], the planning period begin\n";
   ACHECK(prediction_obstacles != nullptr);
 
   // check and process possible rerouting request
@@ -193,10 +194,10 @@ bool PlanningComponent::Proc(
 
   ADCTrajectory adc_trajectory_pb;
   planning_base_->RunOnce(local_view_, &adc_trajectory_pb);
+  auto start_time = adc_trajectory_pb.header().timestamp_sec();
   common::util::FillHeader(node_->Name(), &adc_trajectory_pb);
 
   // modify trajectory relative time due to the timestamp change in header
-  auto start_time = adc_trajectory_pb.header().timestamp_sec();
   const double dt = start_time - adc_trajectory_pb.header().timestamp_sec();
   for (auto& p : *adc_trajectory_pb.mutable_trajectory_point()) {
     p.set_relative_time(p.relative_time() + dt);
@@ -206,6 +207,8 @@ bool PlanningComponent::Proc(
   // record in history
   auto* history = injector_->history();
   history->Add(adc_trajectory_pb);
+
+  ADEBUG << "\n[fgc,add], the planning period end\n";
 
   return true;
 }

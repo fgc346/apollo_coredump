@@ -17,7 +17,8 @@
 ###############################################################################
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DREAMVIEW_URL="http://localhost:8888"
+echo "[fgc,add], DIR = ${DIR}"
+DREAMVIEW_URL="http://localhost:20000"
 
 cd "${DIR}/.."
 
@@ -27,6 +28,7 @@ ulimit -c unlimited
 source "${DIR}/apollo_base.sh"
 
 function start() {
+  echo "APOLLO_BOOTSTRAP_EXTRA_MODULES = ${APOLLO_BOOTSTRAP_EXTRA_MODULES}"
   for mod in ${APOLLO_BOOTSTRAP_EXTRA_MODULES}; do
     echo "Starting ${mod}"
     nohup cyber_launch start ${mod} &
@@ -55,16 +57,20 @@ function stop() {
 
 case $1 in
   start)
+    echo "[fgc,add],the input parm is start, execute start function"
     start
     ;;
   stop)
+    echo "[fgc,add],execute stop function"
     stop
     ;;
   restart)
+    echo "[fgc,add],execute restart function"
     stop
     start
     ;;
   *)
+    echo "[fgc,add],default execute start function"
     start
     ;;
 esac
