@@ -1,4 +1,7 @@
 #! /usr/bin/env bash
+# -e: Exit immediately if a command exits with a non-zero status.
+# 只要脚本发生错误，就终止执行
+# 另外一种写法 set -o errexit
 set -e
 
 TOP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
@@ -61,6 +64,7 @@ function check_apollo_version() {
     local sha1="$(git_sha1)"
     local stamp="$(git_date)"
     APOLLO_VERSION="${branch}-${stamp}-${sha1}"
+    info "[check_apollo_version], APOLLO_VERSION = ${APOLLO_VERSION}"
 }
 
 function apollo_env_setup() {

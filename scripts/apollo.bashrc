@@ -239,8 +239,21 @@ function git_sha1() {
 }
 
 function git_date() {
+  # [ -x file ]：如果 file 存在并且可执行（有效用户有执行／搜索权限），则为true。
+  # [ -d file ]：如果 file 存在并且是一个目录，则为true。
+  # 2>/dev/null的意思就是将标准错误stderr删掉
+  #dev/null是一个特殊的设备文件，这个文件接收到的任何数据都会被丢弃。因此，null这个设备通常也被称为位桶(bit bucket)或黑洞。
+  #简单地理解就是，重定向操作给这个/dev/null文件的所有东西都会被丢弃
+  # 0：stdin(标准输入)
+  # 1: stdout(标准输出)
+  # 2：stderr(标准错误)
+  # which git 查看 指令”git"的绝对路径
   if [ -x "$(which git 2>/dev/null)" ] &&
     [ -d "${APOLLO_ROOT_DIR}/.git" ]; then
+    # cut 命令从文件的每一行剪切字节、字符和字段并将这些字节、字符和字段写至标准输出 
+    # -d 自定义分隔符，这里是空格为分割符 提取第一个字符
+    # git log -1 提取最新的git日志
+    # --pretty确定git的输出格式，%ai 日期，ISO 8601格式
     git log -1 --pretty=%ai | cut -d " " -f 1 || true
   fi
 }
@@ -248,6 +261,8 @@ function git_date() {
 function git_branch() {
   if [ -x "$(which git 2>/dev/null)" ] &&
     [ -d "${APOLLO_ROOT_DIR}/.git" ]; then
+    # 打印且只打印当前分支名
+    # git symbolic-ref --short HEAD 命令一样的效果
     git rev-parse --abbrev-ref HEAD
   else
     echo "@non-git"
