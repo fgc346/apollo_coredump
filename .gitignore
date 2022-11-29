@@ -82,3 +82,5 @@ tools/FlameGraph
 .DS_Store
 #其他文件
 tags
+#test文件夹
+test/
