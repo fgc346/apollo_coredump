@@ -70,7 +70,7 @@ config: {
   rule_id: TRAFFIC_LIGHT
   enabled: true
   traffic_light {
-    stop_distance: 1.0
+    stop_distance: 5.0    //[fgc add] 这里指的与停止线距离，这个阈值用来设置在红绿灯路口多少米的地方停下来
     max_stop_deceleration: 4.0
   }
 }
