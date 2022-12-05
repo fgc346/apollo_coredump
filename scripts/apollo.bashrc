@@ -16,6 +16,9 @@
 # limitations under the License.
 ###############################################################################
 
+# apollo.bashrc 这个文件的目的就是提供一些共有的函数，可以在后续的shell中使用
+# 类似于库文件
+
 # 得到apollo的根目录
 APOLLO_ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
 echo "[fgc,add] apollo.bashrc, APOLLO_ROOT_DIR = ${APOLLO_ROOT_DIR}"
