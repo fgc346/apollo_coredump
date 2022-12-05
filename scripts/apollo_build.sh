@@ -19,6 +19,8 @@
 set -e
 
 TOP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+echo "[fgc,add] apollo_build.sh TOP_DIR = ${TOP_DIR}"
+# [fgc,add] source 类似于 c语言中的include
 source "${TOP_DIR}/scripts/apollo_base.sh"
 
 ARCH="$(uname -m)"
@@ -217,9 +219,12 @@ function determine_cpu_or_gpu_build() {
 }
 
 function format_bazel_targets() {
+  # [fgc,add], xargs 将管道左侧的标准输入，转为命令行参数
   local targets="$(echo $@ | xargs)"
+  # [fgc,add]， ${var//oldPattern/newPattern} 将全部符合旧模式的数据替换为新模式
   targets="${targets// union / }"   # replace all matches of "A union B" to "A B"
   targets="${targets// except / -}" # replaces all matches of "A except B" to "A-B"
+  # [fgc,add] echo 返回targets字符串
   echo "${targets}"
 }
 
@@ -231,7 +236,9 @@ function run_bazel_build() {
   CMDLINE_OPTIONS="$(echo ${CMDLINE_OPTIONS} | xargs)"
 
   local build_targets
+  echo "HOST_OS = ${HOST_OS}"
   build_targets="$(determine_build_targets ${SHORTHAND_TARGETS})"
+  echo "build_targets = ${build_targets}"
 
   local disabled_targets
   disabled_targets="$(determine_disabled_targets ${SHORTHAND_TARGETS})"
@@ -240,7 +247,7 @@ function run_bazel_build() {
   # Note(storypku): Workaround for in case "/usr/bin/bazel: Argument list too long"
   # bazel build ${CMDLINE_OPTIONS} ${job_args} $(bazel query ${build_targets})
   local formatted_targets="$(format_bazel_targets ${build_targets} ${disabled_targets})"
-
+  echo "[fgc,add], formatted_targets = ${formatted_targets}"
   info "Build Overview: "
   info "${TAB}USE_GPU: ${USE_GPU}  [ 0 for CPU, 1 for GPU ]"
   info "${TAB}Bazel Options: ${GREEN}${CMDLINE_OPTIONS}${NO_COLOR}"
@@ -248,6 +255,8 @@ function run_bazel_build() {
   info "${TAB}Disabled:      ${YELLOW}${disabled_targets}${NO_COLOR}"
 
   local job_args="--jobs=$(nproc) --local_ram_resources=HOST_RAM*0.7"
+  #[fgc add],比如 bazel build //cyber/...
+  # //cyber:是BUILD文件相对于WORKSPACE文件的位置
   bazel build ${CMDLINE_OPTIONS} ${job_args} -- ${formatted_targets}
 }
 

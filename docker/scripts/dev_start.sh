@@ -15,7 +15,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###############################################################################
+
+# [fgc,add]
+# 运行该脚本 bash docker/scripts/dev_start.sh
+# BASH_SOURCE[0]表示shell脚本的第一个参数 （如果第一个参数是bash，表明是要执行shell脚本，这时BASH_SOURCE[0] 表示第二个参数
+# ${BASH_SOURCE[0]}=docker/scripts/dev_start.sh
+# dirname "${BASH_SOURCE[0]}" = docker/scripts
 CURR_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+# CURR_DIR /apollo/docker/scripts/ 是执行脚本所在的目录
+echo "CURR_DIR = ${CURR_DIR}"
+# source FileName： 在当前bash环境下读取并执行FileName中的命令； 该命令通常用命令“.”来替代
 source "${CURR_DIR}/docker_base.sh"
 
 CACHE_ROOT_DIR="${APOLLO_ROOT_DIR}/.cache"

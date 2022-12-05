@@ -15,7 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 ###############################################################################
+
+# TOP_DIR 得到Apollo的根目录
+# TOP_DIR = /apollo
 TOP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
+
 source "${TOP_DIR}/scripts/apollo.bashrc"
 
 unset TOP_DIR

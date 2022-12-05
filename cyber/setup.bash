@@ -1,5 +1,6 @@
 #! /usr/bin/env bash
 TOP_DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd -P)"
+echo "[fgc,add] setup.bash TOP_DIR = ${TOP_DIR}"
 source ${TOP_DIR}/scripts/apollo.bashrc
 
 export APOLLO_BAZEL_DIST_DIR="${APOLLO_CACHE_DIR}/distdir"
@@ -17,6 +18,7 @@ monitor_path="${cyber_tool_path}/cyber_monitor"
 visualizer_path="${bazel_bin_path}/modules/tools/visualizer"
 
 # TODO(all): place all these in one place and pathprepend
+echo "[fgc,add], pathprepend 1111 begin"
 for entry in "${mainboard_path}" \
     "${recorder_path}" "${monitor_path}"  \
     "${channel_path}" "${node_path}" \
@@ -26,6 +28,8 @@ for entry in "${mainboard_path}" \
     pathprepend "${entry}"
 done
 
+echo "[fgc,add], pathprepend 1111 end"
+# [fgc,add] PYTHONPATH = /apollo/bazel-bin/cyber/python/internal
 pathprepend ${bazel_bin_path}/cyber/python/internal PYTHONPATH
 
 export CYBER_DOMAIN_ID=80

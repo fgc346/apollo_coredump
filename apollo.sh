@@ -13,6 +13,8 @@ APOLLO_VERSION="@non-git"
 APOLLO_ENV=""
 
 USE_ESD_CAN=false
+# [fgc,add] : 是一个内建指令，表示什么都不干，返回值为0
+# 这句话含义 如果 STAGE不存在，返回0，并将STAGE的值设置为dev
 : ${STAGE:=dev}
 
 AVAILABLE_COMMANDS="config build build_dbg build_opt build_cpu build_gpu build_opt_gpu test coverage lint \
@@ -38,6 +40,7 @@ function check_platform_support() {
 
 function check_minimal_memory_requirement() {
     local minimal_mem_gb="2.0"
+    # [fgc,add] 获取运行apollo设备的实际内存
     local actual_mem_gb="$(free -m | awk '/Mem:/ {printf("%0.2f", $2 / 1024.0)}')"
     if (($(echo "$actual_mem_gb < $minimal_mem_gb" | bc -l))); then
         warning "System memory [${actual_mem_gb}G] is lower than the minimum required" \
@@ -165,7 +168,7 @@ function main() {
     local test_sh="${APOLLO_ROOT_DIR}/scripts/apollo_test.sh"
     local coverage_sh="${APOLLO_ROOT_DIR}/scripts/apollo_coverage.sh"
     local ci_sh="${APOLLO_ROOT_DIR}/scripts/apollo_ci.sh"
-
+    #[fgc,add] env ${APOLLO_ENV}定义apollo中的环境变量
     local cmd="$1"
     shift
     case "${cmd}" in

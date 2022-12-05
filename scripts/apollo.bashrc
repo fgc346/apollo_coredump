@@ -16,10 +16,13 @@
 # limitations under the License.
 ###############################################################################
 
+# 得到apollo的根目录
 APOLLO_ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+echo "[fgc,add] apollo.bashrc, APOLLO_ROOT_DIR = ${APOLLO_ROOT_DIR}"
 APOLLO_IN_DOCKER=false
 
 # If inside docker container
+# 如果 file 存在并且是一个普通文件，则为true
 if [ -f /.dockerenv ]; then
   APOLLO_IN_DOCKER=true
   APOLLO_ROOT_DIR="/apollo"
@@ -301,6 +304,7 @@ function setup_gpu_support() {
   local torch_path="/usr/local/libtorch_${dev}/lib"
   if [ -d "${torch_path}" ]; then
     # Runtime default: for ./bazel-bin/xxx/yyy to work as expected
+    echo "[fgc,add], LD_LIBRARY_PATH = ${LD_LIBRARY_PATH}"
     pathprepend ${torch_path} LD_LIBRARY_PATH
   fi
 }

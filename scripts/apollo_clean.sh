@@ -19,6 +19,7 @@
 set -e
 
 TOP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd -P)"
+echo "CURRENT_DIR=${TOP_DIR}"
 source "${TOP_DIR}/scripts/apollo.bashrc"
 
 CORE_DIR="${TOP_DIR}/data/core"
