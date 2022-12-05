@@ -253,8 +253,9 @@ function run_bazel_build() {
   info "${TAB}Bazel Options: ${GREEN}${CMDLINE_OPTIONS}${NO_COLOR}"
   info "${TAB}Build Targets: ${GREEN}${build_targets}${NO_COLOR}"
   info "${TAB}Disabled:      ${YELLOW}${disabled_targets}${NO_COLOR}"
-
-  local job_args="--jobs=$(nproc) --local_ram_resources=HOST_RAM*0.7"
+   # nproc 是显示当期可用的cpu数量
+#  local job_args="--jobs=$(nproc) --local_ram_resources=HOST_RAM*0.7"
+  local job_args="--jobs=16 --local_ram_resources=HOST_RAM*0.7"
   #[fgc add],比如 bazel build //cyber/...
   # //cyber:是BUILD文件相对于WORKSPACE文件的位置
   bazel build ${CMDLINE_OPTIONS} ${job_args} -- ${formatted_targets}
